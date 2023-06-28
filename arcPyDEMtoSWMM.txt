@@ -1,0 +1,160 @@
+# June27, 2023
+# M. E. Kress
+# arcPyDEMtoSWMM
+#  The purpose of this routine is to create the subcatchments for a SWMM model of 
+#  overland flow.  We use a model of the CSI Campus as an example.
+#  This is a multistep process which uses ArcMap to go GIS work for defining watersheds from
+#  DEMs.  The watershed is defined as a polygon and pour point.  SWMM requires the area of the the subcathment, 
+#  a characteristic width, an out fall, an average slope and a rain source. 
+# The GIS work has a number of steps: 
+#  1. Filling the DEM, arcMap, Fill sinks in a surface raster to remove small imperfections in the data. 
+#  	SpatialAnalystTools>Hydrology>Fill 
+#  2. Calculating the Direction of Flow raster, Creates a raster of flow directions from each cell to its downslope
+#     	neighbor, or neighbors, using D8, Multiple Flow Directions (MFD) or D-infinity (DINF) methods.
+# 	SpatialAnalystTools>Hydrology>FlowDirection.
+#  3. Calculatingn the accumulation raster, Creates a raster of accumulated flow into a raster into each cell. 
+#	A weight can optionally be applied.
+#    	After creating the Fill Raster, use symbiology to classify with 2 classifications.  Set the value of the first 
+#       cassification bin to 25,000.  The smaller the value the small the accumulations shown will be.  I also tried
+#	250,000 and it showded only the bigger accumulation lines.
+#	SpatialAnalystTools>Hydrology>FlowAccumulation.
+#  4. Setting a pour point as a shape file.  This is done manually, I used the method of first creating a graphic and
+#	then converting it to a shape file.  There are other ways for doingn this; however, 
+#	I am having a refresh problem with arcMap and the other technique is cumbersome.  
+#       The location of the pour point is chosen based on the accumulation raster.  Locate the pour point near an 
+#  	accumulation line.  Then snap to the line in the next step.     
+#  5. Snap the pour point to an accumulation line. Snaps pour points to the cell of highest accumulation 
+#	within a specified distance.  Set the accumulation as input and the pour point shape file.  
+#	I used a snap mdistance of 1.  I am not sure if there are better values.
+#	SpatialAnalystTools>Hydrology>SnapPourPoint.
+#  6. Calculating the watershed corresponding to the flow direction and pour point.  Calculates the contributing area
+#	 above a set of cells in a raster.
+#	 SpatialAnalystTools>HydrologyWwatershed.
+#  7. Converting the watershed raster to a polygon. Convert a raster dataset to a polygon feature.
+#	ConversionTools>FromRaster>RastertoPolygon.
+#	Note: Previously, I developed a number of routines that output the vertices of a shape file polygon 
+#       for input to SWMM. The process was semi-automated using arcMap Deskto and arcPy.  In addition to creating 
+#       text files for the polygon nSubcatchments, text files for the location of the Stream Sensor and Gateway were
+#       developed.  These text files were used in a Jupiter notebook, CampusReadAndWriteInpV1.ipynb which uses 
+#	the SWMM Python app to read a template *.inp file and write a revised *.inp file with a more accurate 
+#	value of the subcatchments vertices, the location of the Stream Sensor, Gateway and Backdrop details. 
+#  8. The area of the polygon is calculated in acres and stored in the attribute table of the subcatchment polygon.  
+#     	This was done by hand: open the attribute table for the polygon, add a field, Area, 
+#	calculate geometric function. 
+#  9. The slope in percent is caculated for the entire campus study area (4 tiles). Identifies the slope (gradient or 
+#	steepness) from each cell of a raster.
+#       Note:  To be able to use the resulting file as a raster in the extractbymask a file extension needs to be used, 
+#	for example somethibg like SlopeOut.img which creates an img raster format instead of SlopOut 
+#	which creates an adf raster file format.  
+#	SpatialAnalystTools>Surface>slope
+#  10. The slope raster is masked by the polygon subcatchment and an average slope is calculated as a statistic.
+#	Extracts celle of a raster that correspond to the areas defined by a mask.
+#	SpatialAnalystTools>Extraction>ExtractbyMask.
+#       Note:   To use arcPy ExtractByMask the slope file that is created in #9 should be a *.img or *.tif not a *.adf file
+#	which is the default if an extension is not specified (in which case the *.adf file needs to converted or exported
+# 	to some other raster format like a *.img file.  
+#  11.  The average slope of the extracted raster is obtained from the raster statistic.  
+#	This is done by hand for each subcatchment.  It should be included in the attribute table 
+#	of the polygon subcatchment if possible.
+#  12.  The subcatchment parameters should be output to a text file for use in the second step which is converting
+#       the parameters into a SWMM *inp file using a separate program, 
+#      "C:\Zhanyang\SensorData\CompoundFlooding\SWMM\PySWMM\pySource\CampusReadAndWriteInpV1.ipynb",  
+#       some of which is already written.  This is run with anaconda and written in py 3.6 which is what pySWMM uses.
+#
+#	Reference: 
+#		https://www.youtube.com/watch?v=Ww4JVP4uZi4
+#		ReadMeDEMMtoSubcatchment word document
+#
+#  Mehdi's GitHub
+#  https://github.com/mehdiheris/Urban_Data_Analytics_Course
+#
+#  Install rasterio in anaconda (conda install rasterio --- Done 
+#  Run Mahdi's demo  --- Done
+#  
+#
+#  Overview Note:
+#      Related routines which are not cover here at this time:
+#	1.  pySWMM program, CampusReadAndWriteInpV1.ipynb.  Takes a template *,inp file and a number of text files
+#		to create a revised *.inp. Files stored in C:\Zhanyang\SensorData\CompoundFlooding\SWMM\PySWMM\pySource
+#       2.  A number of arcPy routines and references for creating text files for input to creating *inp file:
+#		C:\Zhanyang\SensorData\CompoundFlooding\SWMM\PySWMM\Campus and C:\Zhanyang\SensorData\CompoundFlooding\SWMM\PySWMM\pySource		
+#		a. ReadMearcPySWMMNotes
+#		b. ReadMeArcMapVerticesToPointsNotes
+#		c. ArcPySWMM.py
+#		d. ArcPyCSISubCatchment.py
+#		e. ArcPyStreamSensor.py
+#		f. ArcPyCSIGateWay.py
+#	3.  mostly manual operations for digitizing the Campus Underground Utility information,
+#		C:\Zhanyang\SensorData\CompoundFlooding\CompoundFloodModel\CampusStormSewer
+#
+#
+#   arcPy Code Follows:
+#
+# -*- coding: utf-8 -*-
+# ---------------------------------------------------------------------------
+# DEMtoSubcatchment1.py
+# Created on: 2023-06-24 12:50:34.00000
+#   (generated by ArcGIS/ModelBuilder)
+# Description: 
+# ---------------------------------------------------------------------------
+
+# Import arcpy module
+import arcpy
+
+# Load required toolboxes
+arcpy.ImportToolbox("Model Functions")
+
+
+# Local variables:
+DEM_Input = "Mosaiced.img"
+Filled_DEM = "C:\\Users\\M Kress\\OneDrive - csi.cuny.edu\\Documents\\ArcGIS\\Default.gdb\\Fill_img2"
+Output_drop_raster = ""
+Direction = "C:\\Users\\M Kress\\OneDrive - csi.cuny.edu\\Documents\\ArcGIS\\Default.gdb\\FlowDir_Fill2"
+NthOutF = "NthOutF"
+Accumulation = "C:\\Users\\M Kress\\OneDrive - csi.cuny.edu\\Documents\\ArcGIS\\Default.gdb\\FlowAcc_Flow2"
+SnapPourPt = "C:\\Users\\M Kress\\OneDrive - csi.cuny.edu\\Documents\\ArcGIS\\Default.gdb\\SnapPou_shp8"
+Subcatchment = "C:\\Users\\M Kress\\OneDrive - csi.cuny.edu\\Documents\\ArcGIS\\Default.gdb\\Watersh_Flow4"
+NWtrShd2 = "C:\\Users\\M Kress\\OneDrive - csi.cuny.edu\\Documents\\ArcGIS\\Default.gdb\\NWtrShd2"
+Area = NWtrShd2
+Flow_Slope = "C:\\Users\\M Kress\\OneDrive - csi.cuny.edu\\Documents\\ArcGIS\\Default.gdb\\Slope_FlowDi1"
+MaskedSlope = "C:\\Users\\M Kress\\OneDrive - csi.cuny.edu\\Documents\\ArcGIS\\Default.gdb\\Extract_Slop1"
+MeanSlope = "18.0566748842181"
+
+# Process: Fill
+arcpy.gp.Fill_sa(DEM_Input, Filled_DEM, "")
+
+# Process: Flow Direction
+arcpy.gp.FlowDirection_sa(Filled_DEM, Direction, "NORMAL", Output_drop_raster, "D8")
+
+# Process: Flow Accumulation
+arcpy.gp.FlowAccumulation_sa(Direction, Accumulation, "", "FLOAT", "D8")
+
+# Process: Snap Pour Point
+arcpy.gp.SnapPourPoint_sa(NthOutF, Accumulation, SnapPourPt, "1", "Id")
+
+# Process: Watershed
+arcpy.gp.Watershed_sa(Direction, SnapPourPt, Subcatchment, "")
+
+# Process: Raster to Polygon
+tempEnvironment0 = arcpy.env.outputZFlag
+arcpy.env.outputZFlag = "Disabled"
+tempEnvironment1 = arcpy.env.outputMFlag
+arcpy.env.outputMFlag = "Disabled"
+arcpy.RasterToPolygon_conversion(Subcatchment, NWtrShd2, "SIMPLIFY", "Value", "SINGLE_OUTER_PART", "")
+arcpy.env.outputZFlag = tempEnvironment0
+arcpy.env.outputMFlag = tempEnvironment1
+
+# Process: Get Field Value
+arcpy.GetFieldValue_mb(NWtrShd2, "Shape_Area", "String", "0")
+
+# Process: Slope
+arcpy.gp.Slope_sa(Direction, Flow_Slope, "DEGREE", "1", "PLANAR", "METER")  # This was changed to Percent Slope 
+
+# Process: Extract by Mask
+arcpy.gp.ExtractByMask_sa(Flow_Slope, NWtrShd2, MaskedSlope)
+
+# Process: Get Raster Properties
+arcpy.GetRasterProperties_management(MaskedSlope, "MEAN", "")
+
+
+
