@@ -73,15 +73,18 @@ def listGroupLayer(glayername):
                 SCAllLayers.append(gl.name)
                 if count in SCGroup:
                     outputAS.write(gl.name+",")
+                    print("gl.name"+gl.name)
                 if count in SCPoly:
                     outputSC.write(gl.name+",")
                     CatchFile=CatchDir+gl.name+".shp"
+                    print("catchfile"+CatchFile+",",gl.name)
                     #
                     #   Area ---
                     #
                     atype="GEODESIC"
                     aunits="ACRES"
                     sumarea = shedarea(CatchFile, atype, aunits)
+                    print(CatchFile+","+gl.name)
                     print(sumarea)
                     outputAS.write(str(sumarea)+",")
                 if count in SCRaster:

@@ -17,9 +17,12 @@ arcpy.env.overwriteOutput = True
 #
 #   Define inputs and output files.
 #
-inRaster="C:\Zhanyang\SensorData\CompoundFlooding\CompoundFloodModel\DEMtoSubcatchment\CSIMosaicFromMehdi\Mosaiced\Mosaiced.img"
-mask = "C:/Zhanyang/SensorData/CompoundFlooding/CompoundFloodModel/DEMtoSubcatchment/ShapeOutfall/NWtrShd.shp"
-outName=r"C:\Zhanyang\SensorData\CompoundFlooding\CompoundFloodModel\DEMtoSubcatchment\Work\arcPyExtractWork\outRaster_1.img"
+inRaster=r"C:\Zhanyang\SensorData\CompoundFlooding\CompoundFloodModel\DEMtoSubcatchment\ShapeOutfall\CSISlopePrcnt"
+#
+mask = r"C:\Zhanyang\SensorData\CompoundFlooding\CompoundFloodModel\DEMtoSubcatchment\ShapeOutfall\PPts1WtrShPly.shp"
+#
+#   Note:  Characters in Name must be <= 13
+outName=r"C:\Zhanyang\SensorData\CompoundFlooding\CompoundFloodModel\DEMtoSubcatchment\ShapeOutfall\PPts1SlpPrnt"
 #
 #   Process extraction.
 #
