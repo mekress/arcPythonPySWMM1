@@ -19,10 +19,10 @@ arcpy.env.overwriteOutput = True
 #
 inRaster=r"C:\Zhanyang\SensorData\CompoundFlooding\CompoundFloodModel\DEMtoSubcatchment\ShapeOutfall\CSISlopePrcnt"
 #
-mask = r"C:\Zhanyang\SensorData\CompoundFlooding\CompoundFloodModel\DEMtoSubcatchment\ShapeOutfall\PPts1WtrShPly.shp"
+mask = r"C:\Zhanyang\SensorData\CompoundFlooding\CompoundFloodModel\DEMtoSubcatchment\ShapeOutfall\WtrShdTrackPly.shp"
 #
 #   Note:  Characters in Name must be <= 13
-outName=r"C:\Zhanyang\SensorData\CompoundFlooding\CompoundFloodModel\DEMtoSubcatchment\ShapeOutfall\PPts1SlpPrnt"
+outName=r"C:\Zhanyang\SensorData\CompoundFlooding\CompoundFloodModel\DEMtoSubcatchment\ShapeOutfall\WSTrckSlpPrnt"
 #
 #   Process extraction.
 #

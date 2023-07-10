@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------
-#  ArcPyCSIGetPolyAreaAverageSlope
+# ArcPyCSIGetPolyAreaAverageSlope
 # Process Area and Average Slope .py
 # Created on: 2023-06-30 09:54:32.00000
-#   Michael E. Kress, Ph. D.
-#College of Staten Islan, CUNY
+# Michael E. Kress, Ph. D.
+# College of Staten Islan, CUNY
 # Usage: Run in ipython or in arcMap
 # Description: This routine takes as input a shape file for
 # subcatchments and the corresponding slope raster file and creates
 # a csv text file where each row is a subcatchment and the columns are the area
 # and average slope.
 # This routine is derived from:  ArcPyCSIGetAreaAverageSlope, which does the calculation
-#  for a list of polygons.
+# for a list of polygons.
 # July 6, 2023
 # ---------------------------------------------------------------------------
 
@@ -55,8 +55,8 @@ print("Working Directory for the resulting txt file "+os.getcwd())
 #In_Poly=r"C:\Zhanyang\SensorData\CompoundFlooding\CompoundFloodModel\DEMtoSubcatchment\ShapeOutfall\NWtrShd.shp"
 #InSlope = "C:\\Users\\M Kress\\OneDrive - csi.cuny.edu\\Documents\\ArcGIS\\Default.gdb\\Extract_Slop2"
 #In_Poly=r"C:\\Users\\M Kress\\OneDrive - csi.cuny.edu\\Documents\\ArcGIS\\Default.gdb\\PPtsWtrShPly"
-In_Poly = r"C:\Zhanyang\SensorData\CompoundFlooding\CompoundFloodModel\DEMtoSubcatchment\ShapeOutfall\PPts1WtrShPly.shp"
-InSlope = r"C:\Zhanyang\SensorData\CompoundFlooding\CompoundFloodModel\DEMtoSubcatchment\Work\arcPyExtractWork\outRaster_1.img"
+In_Poly = r"C:\Zhanyang\SensorData\CompoundFlooding\CompoundFloodModel\DEMtoSubcatchment\ShapeOutfall\\WtrShdTrackPly.shp"
+InSlope = r"C:\Zhanyang\SensorData\CompoundFlooding\CompoundFloodModel\DEMtoSubcatchment\ShapeOutfall\\wstrckslpprnt"
 #
 #  Write header line for output file
 #
