@@ -3,6 +3,7 @@
 # Process Area and Average Slope .py
 # Created on: 2023-06-30 09:54:32.00000
 #   Michael E. Kress, Ph. D.
+#   College of Staten Island, CUNY
 # Usage: Run in ipython or in arcMap
 # Description: This routine takes as input a list of the shape files for
 # subcatchments and the corresponding slope raster files and creates
