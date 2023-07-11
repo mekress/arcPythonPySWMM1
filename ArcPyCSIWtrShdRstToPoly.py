@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------
 # ArcPyCSIWtrShdRstToPoly.py
+#   Michael E. Kress, Ph. D.
+#   College of Staten Island, CUNY
 # Derived from:  ArcPyCSIPPtToWtrShdRstr.py and ArcPyDEMPPtSCatchV1.py
 # Description:
 #    1.  Calculate the watershed from a specified pourpoint in a shape file.
