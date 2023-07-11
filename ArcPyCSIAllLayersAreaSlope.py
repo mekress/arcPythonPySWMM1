@@ -7,6 +7,7 @@
 #   List the layers in a Group and subgroup
 #   Calculate the area of the polygons and average slope
 #   of the raster slope.
+##########################################################
 #
 import arcpy, os
 from arcpy import env
@@ -16,6 +17,8 @@ arcpy.CheckOutExtension("Spatial")
 arcpy.env.overwriteOutput = True
 #
 #   End Header -----
+#
+#   Define Subroutines.
 #
 def shedarea(in_poly, atype, aunits):
     sumarea = 0
@@ -31,6 +34,8 @@ def aveslope(inslope):
     MeanSlope = arcpy.GetRasterProperties_management(inslope, "MEAN", "")
     return MeanSlope
 #
+#   Set the working directory for output file and define the input and output files.
+#   
 WDirectory=r"C:\Zhanyang\SensorData\CompoundFlooding\CompoundFloodingPythonSource\DEMtoSubcatchmentWork"
 os.chdir(WDirectory)
 print("Working Directory for the resulting txt file "+os.getcwd())
@@ -49,6 +54,8 @@ OutputFileRas="CSISCLayersRas.txt"
 outputRas = file(OutputFileRas, "w")  
 print("Opened Output " + OutputFileRas +" \n")
 outputRas.write("Name, Area (Acrea), Average Slope \n")
+#
+#   Define the subroutine that loops through thr layer group and does the calculations.
 #
 def listGroupLayer(glayername):
     #   If standalone ues:
@@ -99,12 +106,17 @@ def listGroupLayer(glayername):
 
 # use as 
 listGroupLayer("CSISubcatchments")
+#
+#   Write the last lines and close the files.
+#
 outputSC.write("\n")
 outputSC.close()
 outputRas.write("\n")
 outputRas.close()
 outputAS.write("\n")
 outputAS.close()
-#listGroupLayer("MyGroupLayer")
+#
+#   Fini
+#
 
 #Reference:  https://community.esri.com/t5/python-questions/listing-layers-in-a-group/td-p/736543
