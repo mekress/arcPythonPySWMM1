@@ -5,7 +5,7 @@
 #   College of Staten Island, CUNY
 #
 #   List the layers in a Group and subgroup
-
+#
 import arcpy, os
 from arcpy import env
 from arcpy.sa import *
