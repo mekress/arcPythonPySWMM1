@@ -8,7 +8,6 @@
 #   Calculate the area of the polygons and average slope
 #   of the raster slope.
 #
-
 import arcpy, os
 from arcpy import env
 from arcpy.sa import *
