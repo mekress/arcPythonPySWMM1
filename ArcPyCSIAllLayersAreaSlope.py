@@ -1,13 +1,19 @@
 #
 #   July 1, 2023
-#   ArcPyCSIListGroupLayer
+#   ArcPyCSIAllLayersAreaSlope
+#   Derived from:  ArcPyCSIListGroupLayer
 #   Michael E. Kress, Ph. D.
 #   College of Staten Island, CUNY
 #
 #   List the layers in a Group and subgroup
 #   Calculate the area of the polygons and average slope
 #   of the raster slope.
-##########################################################
+#   Note:  This depends on the order of the subcatchment polygon shape file,
+#       pour point shape file and slope raster file in each member of the group.
+#   July 1, 2023, initial coding.
+#   July 21, 2023,  code clean-up, testing and verification. 
+#
+# ---------------------------------------------------------------------------
 #
 import arcpy, os
 from arcpy import env
@@ -18,7 +24,7 @@ arcpy.env.overwriteOutput = True
 #
 #   End Header -----
 #
-#   Define Subroutines.
+#   Define subroutines.
 #
 def shedarea(in_poly, atype, aunits):
     sumarea = 0
@@ -34,13 +40,12 @@ def aveslope(inslope):
     MeanSlope = arcpy.GetRasterProperties_management(inslope, "MEAN", "")
     return MeanSlope
 #
-#   Set the working directory for output file and define the input and output files.
-#   
+#   Specify working directory for output text file and output file names.
+#
 WDirectory=r"C:\Zhanyang\SensorData\CompoundFlooding\CompoundFloodingPythonSource\DEMtoSubcatchmentWork"
 os.chdir(WDirectory)
 print("Working Directory for the resulting txt file "+os.getcwd())
 #
-CatchDir="C:\\Zhanyang\\SensorData\\CompoundFlooding\\CompoundFloodModel\\DEMtoSubcatchment\\ShapeOutfall\\"
 OutputFileAS="CSISCAreaSlope.txt"
 outputAS = file(OutputFileAS, "w")  
 print("Opened Output " + OutputFileAS +" \n")
@@ -49,13 +54,19 @@ outputAS.write("Name, Area (Acrea), Average Slope \n")
 OutputFile="CSISCLayers.txt"
 outputSC = file(OutputFile, "w")  
 print("Opened Output " + OutputFile +" \n")
-outputSC.write("Name, Area (Acrea), Average Slope \n")
+outputSC.write("Shape file names \n")
+#
 OutputFileRas="CSISCLayersRas.txt"
 outputRas = file(OutputFileRas, "w")  
 print("Opened Output " + OutputFileRas +" \n")
-outputRas.write("Name, Area (Acrea), Average Slope \n")
+outputRas.write("Raster file names \n")
 #
-#   Define the subroutine that loops through thr layer group and does the calculations.
+#
+#   Specify the location of the GIS files containing the subcatchment shape files and raster slope files.
+#
+CatchDir="C:\\Zhanyang\\SensorData\\CompoundFlooding\\CompoundFloodModel\\DEMtoSubcatchment\\ShapeOutfall\\"
+#
+#   Define the subroutine which traverses the subdirectories and do calculations.
 #
 def listGroupLayer(glayername):
     #   If standalone ues:
@@ -81,7 +92,7 @@ def listGroupLayer(glayername):
                     outputAS.write(gl.name+",")
                     print("gl.name"+gl.name)
                 if count in SCPoly:
-                    outputSC.write(gl.name+",")
+                    outputSC.write(gl.name+"\n")
                     CatchFile=CatchDir+gl.name+".shp"
                     print("catchfile"+CatchFile+",",gl.name)
                     #
@@ -94,7 +105,7 @@ def listGroupLayer(glayername):
                     print(sumarea)
                     outputAS.write(str(sumarea)+",")
                 if count in SCRaster:
-                    outputRas.write(gl.name+",")
+                    outputRas.write(gl.name+"\n")
                     SlopeFile=CatchDir+gl.name
                     #
                     #   Average slope
@@ -104,11 +115,10 @@ def listGroupLayer(glayername):
                     outputAS.write(str(MeanSlope)+"\n")
                     print(MeanSlope)
 
-# use as 
+#
+#   Execute the routine on the group name, CSISubcatchments.
+#
 listGroupLayer("CSISubcatchments")
-#
-#   Write the last lines and close the files.
-#
 outputSC.write("\n")
 outputSC.close()
 outputRas.write("\n")
@@ -118,5 +128,5 @@ outputAS.close()
 #
 #   Fini
 #
-
 #Reference:  https://community.esri.com/t5/python-questions/listing-layers-in-a-group/td-p/736543
+

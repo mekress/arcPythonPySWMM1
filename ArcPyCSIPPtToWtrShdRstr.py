@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------
 # ArcPyCSIPPtToWtrShdRstr.py
+# Derived from:  ArcPyDEMPPtSCatchV1.py
 #   Michael E. Kress, Ph. D.
 #   College of Staten Island, CUNY
-# Derived from:  ArcPyDEMPPtSCatchV1.py
 # Description:
 #    1.  Calculate the watershed from a specified pourpoint in a shape file.
 #           First, snap the pourpoint to the accumulation raster.
@@ -19,6 +19,8 @@
 #
 #   July 9, 2023
 #   Initial coding.
+#   July 21, 2023
+#   Code cleanup and testing and verification.
 #
 # ---------------------------------------------------------------------------
 
@@ -48,27 +50,17 @@ print("Working Directory for the resulting txt file "+os.getcwd())
 GISDirectory="C:\\Zhanyang\\SensorData\\CompoundFlooding\\CompoundFloodModel\\DEMtoSubcatchment\\ShapeOutfall\\"
 #Direction = "C:\\Users\\M Kress\\OneDrive - csi.cuny.edu\\Documents\\ArcGIS\\Default.gdb\\FlowDir_Fill2"
 Direction = GISDirectory+"CSITileD"
-#   Target pour point
-#NthOutF = GISDirectory+"PPtTMP.shp"
-InputPourPointShapeFile="PPtsTrack.shp"
+#   Specify the shape file containing the input pour point.
+InputPourPointShapeFile="WbArSbPPt3.shp"
 NthOutF = GISDirectory+InputPourPointShapeFile
 #    Accumulation raster previously calculated
 Accumulation = GISDirectory+"csitilea"
 #    Snapped pour point
-#SnapPourPt = GISDirectory+"SnapPPtTMP_1"
-OutputSnapFile="SnpPPtsTrack"
+OutputSnapFile="SnpPPtsArSb3"
 SnapPourPt = GISDirectory+OutputSnapFile
-#    Watershed Raster calculated here
-#Subcatchment = GISDirectory+"WShdPPtTMP_1"
-OutPutWatershed="WtrShdTrack"
+#    Watershed Raster name calculated here
+OutPutWatershed="WtrShdArSb3a"
 Subcatchment = GISDirectory+OutPutWatershed
-#    Watershed as a polygon shape file
-NWtrShd2 = GISDirectory+"WtrShdPPtTMPPly.shp"
-#    Slope Raster previously calculated 
-Flow_Slope = GISDirectory+"CSISlopePrcnt"
-#    Masked slope raster calculated here
-MaskedSlope = GISDirectory+"MkSlpPPtTMP_1"
-
 # Process: Snap Pour Point
 print(Accumulation)
 print(NthOutF)
@@ -90,46 +82,10 @@ arcpy.gp.Watershed_sa(Direction, SnapPourPt, Subcatchment, "Value")
 #
 #   Pause Here and evalute the Watershed based on the pour points.
 #
-Message=input("End Here")
-
-
-
-
-
-# Process: Raster to Polygon
-#tempEnvironment0 = arcpy.env.outputZFlag
-#arcpy.env.outputZFlag = "Disabled"
-#tempEnvironment1 = arcpy.env.outputMFlag
-#arcpy.env.outputMFlag = "Disabled"
-#arcpy.RasterToPolygon_conversion(Subcatchment, NWtrShd2, "SIMPLIFY", "VALUE", "SINGLE_OUTER_PART", "")
-#arcpy.env.outputZFlag = tempEnvironment0
-#arcpy.env.outputMFlag = tempEnvironment1
-#
-#   Get value of area.  Set up a function to replace the next few lines of code.
-#
-#in_poly=NWtrShd2
-#atype="GEODESIC"
-#aunits="ACRES"
-#sumarea = 0
-#with arcpy.da.SearchCursor(in_poly, "SHAPE@") as rows:
-#    for row in rows:
-#        sumarea += row[0].getArea(atype, aunits)
-#print sumarea
+Message=input("End Here and evaluate the watersheds")
 #
 #
-# Process: Extract by Mask
-#arcpy.gp.ExtractByMask_sa(Flow_Slope, NWtrShd2, MaskedSlope)
-#
-# Process: Get Raster Properties to get the mean slope 
-#MeanSlope = arcpy.GetRasterProperties_management(MaskedSlope, "MEAN", "")
-#print MeanSlope
-
 arcpy.CheckInExtension("Spatial")
-
-#   END HERE
-#________________________________________________________________________________________
 #
-##
-#   Please see ArcPyCSIGetAreaAverageSlope.py for subroutines for calculating the 
-#   area of the polygon (shape file) and mean slope.
-
+#   END HERE
+#########################################################
