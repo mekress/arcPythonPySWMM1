@@ -207,6 +207,7 @@ with Simulation(r'CampusS2S5CulvertWrStrParams.inp') as sim:
     #   Set the plotfile name to encode parameter values.
     #
     PltFileName='S2'+'W'+str(int(S2w))+'A'+str(int(S2a))+'Slpp'+str(round(S2slp*1000))+'.jpg'
+    SensorFlDpthPltFileName='SenFlDpt'+'W'+str(int(S2w))+'A'+str(int(S2a))+'Slpp'+str(round(S2slp*1000))+'.jpg'
     CulDeptPltFileName='CulDept'+'W'+str(int(S2w))+'A'+str(int(S2a))+'Slpp'+str(round(S2slp*1000))+'.jpg'
     WeirCCFlPltFileName='WeirCCFl'+'W'+str(int(S2w))+'A'+str(int(S2a))+'Slpp'+str(round(S2slp*1000))+'.jpg'
     WeirJwrDpthPltFileName='WrJWrDpth'+'W'+str(int(S2w))+'A'+str(int(S2a))+'Slpp'+str(round(S2slp*1000))+'.jpg'
@@ -329,6 +330,13 @@ PlotCompare(X1=time_stamps,Y1=subc_runoff,Y2=link_depth,
             PltTitle="S2 Runoff and Sensor Depth"+SCtitle,
             X1Label="Time",Y1Label="Flow (cfs)",Y2Label="Depth (ft)",
             Legend1="S2",Legend2="Sensor",ShareYaxis=0,PltFile=PltFileName)
+#
+#   Sensor Flow and Sensor depth
+#
+PlotCompare(X1=time_stamps,Y1=link_flow,Y2=link_depth,
+            PltTitle="Sensor Flow and Sensor Depth"+SCtitle,
+            X1Label="Time",Y1Label="Flow (cfs)",Y2Label="Depth (ft)",
+            Legend1="Sensor",Legend2="Sensor",ShareYaxis=0,PltFile=SensorFlDpthPltFileName)
 #
 #   S2 and S5 runoff
 #
