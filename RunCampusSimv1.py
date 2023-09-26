@@ -34,6 +34,9 @@ import os
 #
 import csv
 from decimal import Decimal, ROUND_DOWN
+from tabulate import tabulate
+import pandas as pd
+import numpy as np
 #
 from swmm_api.input_file import read_inp_file, SwmmInput, section_labels as sections
 from swmm_api.input_file.sections import Outfall
@@ -47,7 +50,7 @@ print(CONFIG)
 #
 print(os.getcwd())
 #WDirectory='C:\\Zhanyang\\SensorData\\CompoundFlooding\\SWMM\\PySWMM\\Campus\\Check'
-WDirectory='C:\\Zhanyang\\SensorData\\CompoundFlooding\\SWMM\\PySWMM\\Campus\\S2S5Culverts\\Subcatchment2ParameterAnalysis\\WorkCampusPySwmm\\Temp'
+WDirectory='C:\\Zhanyang\\SensorData\\CompoundFlooding\\SWMM\\PySWMM\\Campus\\S2S5Culverts\\Subcatchment2ParameterAnalysis\\WorkCampusPySwmm\\BaseV1'
 #C:\Zhanyang\SensorData\CompoundFlooding\SWMM\PySWMM\Campus\S2S5Culverts\Subcatchment2ParameterAnalysis\WorkCampusPySwmm
 os.chdir(WDirectory)
 print(os.getcwd())
@@ -71,9 +74,6 @@ from pyswmm import Simulation, Subcatchments
 #
 import swmmio
 #
-#with Simulation('swmm_example.inp') as sim:
-#with Simulation('C:\Zhanyang\SensorData\CompoundFlooding\SWMM\PySWMM\Site_Drainage_Model.inp') as sim:
-#with Simulation('C:\Zhanyang\SensorData\CompoundFlooding\SWMM\MatSWMM-master\MatSWMM 5.1.009\Matlab module\SWMM #Matlab\swmm_files\Site_Drainage_Model.inp') as sim:
 with Simulation(r'./CampusS2S5CulvertWrStrParams.inp') as sim:
     #   Set up the parameters to be used for this run.
     S2 = Subcatchments(sim)["S2"]
@@ -90,12 +90,13 @@ with Simulation(r'./CampusS2S5CulvertWrStrParams.inp') as sim:
 
 
 # In[11]:
-#import swmmio
+import swmmio
 #mymodel = swmmio.Model(r'C:\Zhanyang\SensorData\CompoundFlooding\SWMM\PySWMM\Campus\S2S5Culverts\Subcatchment2ParameterAnalysis\CampusS2S5CulvertWrStrParams.inp')
+mymodel = swmmio.Model(r'./CampusS2S5CulvertWrStrParams.inp')
 # Pandas dataframe with most useful data related to model nodes, conduits, and subcatchments
-#nodes = mymodel.nodes.dataframe
-#links = mymodel.links.dataframe
-#subs = mymodel.subcatchments.dataframe
+nodes = mymodel.nodes.dataframe
+links = mymodel.links.dataframe
+subs = mymodel.subcatchments.dataframe
 
 #enjoy all the Pandas functions
 #nodes.head()
@@ -208,6 +209,7 @@ with Simulation(r'CampusS2S5CulvertWrStrParams.inp') as sim:
     #
     PltFileName='S2'+'W'+str(int(S2w))+'A'+str(int(S2a))+'Slpp'+str(round(S2slp*1000))+'.jpg'
     SensorFlDpthPltFileName='SenFlDpt'+'W'+str(int(S2w))+'A'+str(int(S2a))+'Slpp'+str(round(S2slp*1000))+'.jpg'
+    SensorMeasurePltFileName='SenMsrdFlDpt'+'W'+str(int(S2w))+'A'+str(int(S2a))+'Slpp'+str(round(S2slp*1000))+'.jpg'
     CulDeptPltFileName='CulDept'+'W'+str(int(S2w))+'A'+str(int(S2a))+'Slpp'+str(round(S2slp*1000))+'.jpg'
     WeirCCFlPltFileName='WeirCCFl'+'W'+str(int(S2w))+'A'+str(int(S2a))+'Slpp'+str(round(S2slp*1000))+'.jpg'
     WeirJwrDpthPltFileName='WrJWrDpth'+'W'+str(int(S2w))+'A'+str(int(S2a))+'Slpp'+str(round(S2slp*1000))+'.jpg'
@@ -259,11 +261,25 @@ with Simulation(r'CampusS2S5CulvertWrStrParams.inp') as sim:
         subc_runoff.append(S2.runoff)
         subc5_runoff.append(S5.runoff)
 #
+print(os.getcwd())
+#
+#   Write the Time and sensor simulated data to a csv file.
+#
+dfTime=pd.DataFrame(time_stamps)
+#   add depth as a column
+dfTime['depth']=link_depth
+dfTime.to_csv('dfData.csv',index=False)
+#
+print("Read Uniform Interpolated Data after doing interpolation in Matlab")
+dfSensorData = pd.read_csv ('UniformTimeDepth.csv')
+print(dfSensorData)
+#
+#
+#%%
 #
 
-
 # In[8]:
-    
+   
 #
 #   This method creates a dictionary from the sequence of tuples (time,value)
 #   the Tuples are sorted and unpacked to plot get the values to plot.
@@ -336,9 +352,16 @@ PlotCompare(X1=time_stamps,Y1=subc_runoff,Y2=link_depth,
 PlotCompare(X1=time_stamps,Y1=link_flow,Y2=link_depth,
             PltTitle="Sensor Flow and Sensor Depth"+SCtitle,
             X1Label="Time",Y1Label="Flow (cfs)",Y2Label="Depth (ft)",
-            Legend1="Sensor",Legend2="Sensor",ShareYaxis=0,PltFile=SensorFlDpthPltFileName)
+            Legend1="Sensor Flow",Legend2="Sensor",ShareYaxis=0,PltFile=SensorFlDpthPltFileName)
 #
-#   S2 and S5 runoff
+#   Model Simulated Sensor Depth and Sensor Depth
+# 
+PlotCompare(X1=time_stamps,Y1=link_depth,Y2=dfSensorData.depth/12.0,
+            PltTitle="Sensor Depth and Sensor Depth"+SCtitle ,
+            X1Label="Time",Y1Label="Depth (ft)",Y2Label="Depth (ft)",
+            Legend1="Simulated",Legend2="Mesured",ShareYaxis=0,PltFile="Test.jpg")
+#
+#    S2 and S5 flows.
 #
 PlotCompare(X1=time_stamps,Y1=subc_runoff,Y2=subc5_runoff,
             #PltTitle="S2 Runoff and Culvert One Depth"+SCtitle,
@@ -373,6 +396,7 @@ PlotCompare(X1=time_stamps,Y2=LinkWeir1_depth,Y1=NodeJWr1_depth,
             PltTitle="JWr1 and Weir1 Depth "+SCtitle,
             X1Label="Time",Y1Label="Depth(ft)",Y2Label="Depth (ft)",
             Legend2="Weir",Legend1="JWr1",ShareYaxis=1,PltFile=WeirJwrDpthPltFileName)
+#
 #
 ##################
 #
